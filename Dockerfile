@@ -13,6 +13,12 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Add this at the top
+ARG DATABASE_URL
+
+# Make sure it's available during build
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Generate Database
 RUN npx prisma migrate dev --name init
 
