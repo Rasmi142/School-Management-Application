@@ -19,8 +19,6 @@ RUN npx prisma migrate dev --name init
 # Build the Next.js application
 RUN npm run build
 
-ENV NODE_ENV=production
-
 # Expose the port the app runs on
 EXPOSE 3000
 
