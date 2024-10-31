@@ -7,6 +7,7 @@ import {
   StudentSchema,
   SubjectSchema,
   TeacherSchema,
+  ParentSchema,
 } from "./formValidationSchemas";
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
@@ -147,7 +148,7 @@ export const createTeacher = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"teacher"}
+      publicMetadata: { role: "teacher" }
     });
 
     await prisma.teacher.create({
@@ -267,7 +268,7 @@ export const createStudent = async (
       password: data.password,
       firstName: data.name,
       lastName: data.surname,
-      publicMetadata:{role:"student"}
+      publicMetadata: { role: "student" }
     });
 
     await prisma.student.create({
@@ -460,6 +461,111 @@ export const deleteExam = async (
     });
 
     // revalidatePath("/list/subjects");
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+
+export const createParent = async (
+  currentState: CurrentState,
+  data: ParentSchema
+) => {
+  console.log(data);
+  try {
+
+    const user = await clerkClient.users.createUser({
+      username: data.username,
+      password: data.password,
+      firstName: data.name,
+      lastName: data.surname,
+      publicMetadata: { role: "parent" }
+    });
+
+    await prisma.parent.create({
+      data: {
+        id: user.id,
+        username: data.username,
+        name: data.name,
+        surname: data.surname,
+        email: data.email || null,
+        phone: data.phone,
+        address: data.address,
+        students: {
+          connect: data.students?.map((studentId: string) => ({
+            id: parseInt(studentId),
+          })),
+        },
+      },
+    });
+
+    // revalidatePath("/list/students");
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+export const updateParent = async (
+  currentState: CurrentState,
+  data: ParentSchema
+) => {
+  if (!data.id) {
+    return { success: false, error: true };
+  }
+  try {
+    const user = await clerkClient.users.updateUser(data.id, {
+      username: data.username,
+      ...(data.password !== "" && { password: data.password }),
+      firstName: data.name,
+      lastName: data.surname,
+    });
+
+    await prisma.parent.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        ...(data.password !== "" && { password: data.password }),
+        username: data.username,
+        name: data.name,
+        surname: data.surname,
+        email: data.email || null,
+        phone: data.phone || null,
+        address: data.address,
+        students: {
+          connect: data.students?.map((studentId: string) => ({
+            id: parseInt(studentId),
+          })),
+        },
+      },
+    });
+    // revalidatePath("/list/students");
+    return { success: true, error: false };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+};
+
+export const deleteParent = async (
+  currentState: CurrentState,
+  data: FormData
+) => {
+  const id = data.get("id") as string;
+  try {
+    await clerkClient.users.deleteUser(id);
+
+    await prisma.student.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    // revalidatePath("/list/parents");
     return { success: true, error: false };
   } catch (err) {
     console.log(err);

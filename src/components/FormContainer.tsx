@@ -4,18 +4,18 @@ import { auth } from "@clerk/nextjs/server";
 
 export type FormContainerProps = {
   table:
-    | "teacher"
-    | "student"
-    | "parent"
-    | "subject"
-    | "class"
-    | "lesson"
-    | "exam"
-    | "assignment"
-    | "result"
-    | "attendance"
-    | "event"
-    | "announcement";
+  | "teacher"
+  | "student"
+  | "parent"
+  | "subject"
+  | "class"
+  | "lesson"
+  | "exam"
+  | "assignment"
+  | "result"
+  | "attendance"
+  | "event"
+  | "announcement";
   type: "create" | "update" | "delete";
   data?: any;
   id?: number | string;
@@ -50,6 +50,12 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
           select: { id: true, name: true },
         });
         relatedData = { subjects: teacherSubjects };
+        break;
+      case "parent":
+        const StudentList = await prisma.student.findMany({
+          select: { id: true, name: true },
+        });
+        relatedData = { students: StudentList };
         break;
       case "student":
         const studentGrades = await prisma.grade.findMany({
