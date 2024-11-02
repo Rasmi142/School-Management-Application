@@ -484,6 +484,25 @@ export const createParent = async (
       publicMetadata: { role: "parent" }
     });
 
+    console.log(user);
+
+    // await prisma.parent.create({
+    //   data: {
+    //     id: user.id,
+    //     username: data.username,
+    //     name: data.name,
+    //     surname: data.surname,
+    //     email: data.email || null,
+    //     phone: data.phone !== null && data.phone !== undefined ? data.phone : "",
+    //     address: data.address,
+    //     students: {
+    //       connect: data.students?.map((studentId: string) => ({
+    //         id: studentId,
+    //       })),
+    //     },
+    //   },
+    // });
+
     await prisma.parent.create({
       data: {
         id: user.id,
@@ -491,7 +510,7 @@ export const createParent = async (
         name: data.name,
         surname: data.surname,
         email: data.email || null,
-        phone: data.phone !== null && data.phone !== undefined ? data.phone : "",
+        phone: data.phone!,
         address: data.address,
         students: {
           connect: data.students?.map((studentId: string) => ({
@@ -529,18 +548,13 @@ export const updateParent = async (
         id: data.id,
       },
       data: {
-        ...(data.password ? { password: data.password } : {}),
+        ...(data.password !== "" && { password: data.password }),
         username: data.username,
         name: data.name,
         surname: data.surname,
         email: data.email || null,
-        phone: data.phone || undefined,
+        phone: data.phone!,
         address: data.address,
-        students: {
-          connect: data.students?.map((studentId: string) => ({
-            id: studentId, // Convert string ID to number
-          })) || [], // Fallback to empty array
-        },
       },
     });
     // revalidatePath("/list/students");
@@ -562,7 +576,7 @@ export const deleteParent = async (
   try {
     await clerkClient.users.deleteUser(id);
 
-    await prisma.student.delete({
+    await prisma.parent.delete({
       where: {
         id: id,
       },
