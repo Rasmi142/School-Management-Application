@@ -491,11 +491,11 @@ export const createParent = async (
         name: data.name,
         surname: data.surname,
         email: data.email || null,
-        phone: data.phone,
+        phone: data.phone !== null && data.phone !== undefined ? data.phone : "",
         address: data.address,
         students: {
           connect: data.students?.map((studentId: string) => ({
-            id: parseInt(studentId),
+            id: studentId,
           })),
         },
       },
@@ -529,17 +529,17 @@ export const updateParent = async (
         id: data.id,
       },
       data: {
-        ...(data.password !== "" && { password: data.password }),
+        ...(data.password ? { password: data.password } : {}),
         username: data.username,
         name: data.name,
         surname: data.surname,
         email: data.email || null,
-        phone: data.phone || null,
+        phone: data.phone || undefined,
         address: data.address,
         students: {
           connect: data.students?.map((studentId: string) => ({
-            id: parseInt(studentId),
-          })),
+            id: studentId, // Convert string ID to number
+          })) || [], // Fallback to empty array
         },
       },
     });
@@ -556,6 +556,9 @@ export const deleteParent = async (
   data: FormData
 ) => {
   const id = data.get("id") as string;
+
+  console.log(id)
+
   try {
     await clerkClient.users.deleteUser(id);
 

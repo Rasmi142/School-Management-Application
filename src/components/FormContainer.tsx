@@ -24,6 +24,8 @@ export type FormContainerProps = {
 const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
   let relatedData = {};
 
+  console.log(type, data, id)
+
   const { userId, sessionClaims } = auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
   const currentUserId = userId;
@@ -55,7 +57,12 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
         const StudentList = await prisma.student.findMany({
           select: { id: true, name: true },
         });
-        relatedData = { students: StudentList };
+
+        const parentsList = await prisma.parent.findMany({
+          select: { id: true }
+        })
+
+        relatedData = { students: StudentList, parents: parentsList };
         break;
       case "student":
         const studentGrades = await prisma.grade.findMany({
