@@ -141,7 +141,7 @@ const forms: {
       relatedData={relatedData}
     />),
   assignment: (setOpen, type, data, relatedData) => (
-    <ResultForm
+    <AssignmentForm
       type={type}
       data={data}
       setOpen={setOpen}
