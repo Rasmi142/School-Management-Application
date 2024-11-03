@@ -135,3 +135,16 @@ export const lessonSchema = z.object({
 });
 
 export type LessonSchema = z.infer<typeof lessonSchema>;
+
+
+
+
+export const resultSchema = z.object({
+  id: z.coerce.number().optional(),
+  score: z.coerce.number(),
+  examId: z.coerce.number({ message: "Exam is required!" }),
+  assignmentId: z.coerce.number({ message: "assignment is required!" }),
+  studentId: z.coerce.string({ message: "student is required!" }),
+});
+
+export type ResultSchema = z.infer<typeof resultSchema>;
