@@ -143,6 +143,13 @@ const forms: {
       setOpen={setOpen}
       relatedData={relatedData}
     />),
+  event: (setOpen, type, data, relatedData) => (
+    <EventForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />),
   assignment: (setOpen, type, data, relatedData) => (
     <AssignmentForm
       type={type}
@@ -150,13 +157,6 @@ const forms: {
       setOpen={setOpen}
       relatedData={relatedData}
     />),
-  event: (setOpen, type, data, relatedData) => (
-      <EventForm
-        type={type}
-        data={data}
-        setOpen={setOpen}
-        relatedData={relatedData}
-      />)
 };
 
 const FormModal = ({
