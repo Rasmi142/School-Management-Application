@@ -105,7 +105,6 @@ const AnnouncementListPage = async ({
 
   const [data, count] = await prisma.$transaction([
     prisma.announcement.findMany({
-      where: query,
       include: {
         class: true,
       },
@@ -114,6 +113,8 @@ const AnnouncementListPage = async ({
     }),
     prisma.announcement.count({ where: query }),
   ]);
+
+  console.log(data)
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

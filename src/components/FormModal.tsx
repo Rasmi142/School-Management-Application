@@ -11,6 +11,7 @@ import {
   deleteResult,
   deleteAssignment,
   deleteEvent,
+  deleteAnnouncement,
 } from "@/lib/actions";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -33,7 +34,7 @@ const deleteActionMap = {
   result: deleteResult,
   attendance: deleteSubject,
   event: deleteEvent,
-  announcement: deleteSubject,
+  announcement: deleteAnnouncement,
 };
 
 // USE LAZY LOADING
@@ -71,6 +72,10 @@ const AssignmentForm = dynamic(() => import("./forms/AssignmentForm"), {
 const EventForm = dynamic(() => import("./forms/EventForm"), {
   loading: () => <h1>Loading...</h1>,
 })
+const AnnouncementForm = dynamic(() => import("./forms/AnnouncementForm"), {
+  loading: () => <h1>Loading...</h1>,
+})
+
 // TODO: OTHER FORMS
 
 const forms: {
@@ -152,6 +157,13 @@ const forms: {
     />),
   assignment: (setOpen, type, data, relatedData) => (
     <AssignmentForm
+      type={type}
+      data={data}
+      setOpen={setOpen}
+      relatedData={relatedData}
+    />),
+  announcement: (setOpen, type, data, relatedData) => (
+    <AnnouncementForm
       type={type}
       data={data}
       setOpen={setOpen}
