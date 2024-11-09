@@ -29,7 +29,17 @@ interface AttendanceData {
   absentIds: string[];
 }
 
-
+type AttendanceRecordType = {
+  id: number;
+  studentId: string;
+  date: Date;
+  status: string; // Adjust this type based on the actual data type of `status`
+};
+type StudentType = {
+  id: string;
+  name: string;
+  surname: string;
+};
 export const createSubject = async (
   currentState: CurrentState,
   data: SubjectSchema
@@ -1086,7 +1096,7 @@ export const getClasses = async () => {
 
 export const getStudentsByGradeAndClass = async (gradeId: number, classId: number) => {
   try {
-    const students = await prisma.student.findMany({
+    const students: StudentType[] = await prisma.student.findMany({
       where: {
         gradeId,
         classId,
@@ -1097,14 +1107,13 @@ export const getStudentsByGradeAndClass = async (gradeId: number, classId: numbe
         surname: true,
       },
     });
-    const validStudents = students.filter(student => student.id); // Ensure students have an `id`
+    const validStudents = students.filter((student: StudentType) => student.id); // Ensure students have an `id`
     return { success: true, data: validStudents };
   } catch (error) {
     console.error("Error fetching students:", error);
     return { success: false, data: [] };
   }
 };
-
 
 // action.ts
 export const getGrades = async () => {
@@ -1142,12 +1151,12 @@ export const addAttendance = async (attendanceData: {
     const attendance = await prisma.attendance.create({
       data: {
         date: typeof date === "string" ? new Date(date) : date,
-        period,
-        gradeId,
-        classId,
-        supervisorId,
-        presentIds,
-        absentIds,
+        period: period ?? 1,
+        gradeId: gradeId,
+        classId: classId,
+        supervisorId: supervisorId,
+        presentIds: presentIds,
+        absentIds: absentIds,
         studentId: studentId ?? undefined,
         lessonId: lessonId ?? undefined,
       },
@@ -1159,7 +1168,7 @@ export const addAttendance = async (attendanceData: {
   }
 };
 
-export const getAttendanceBySupervisorId = async (supervisorId: string | number) => {
+export const getAttendanceBySupervisorId = async (supervisorId: string) => {
   try {
     const attendanceRecords = await prisma.attendance.findMany({
       where: {
@@ -1169,11 +1178,10 @@ export const getAttendanceBySupervisorId = async (supervisorId: string | number)
         id: true,
         studentId: true,
         date: true,
-        status: true,
       },
     });
     
-    const validRecords = attendanceRecords.filter(record => record.id); // Ensure attendance records have an `id`
+    const validRecords = attendanceRecords.filter((record: { id: number }) => record.id);
     return { success: true, data: validRecords };
   } catch (error) {
     console.error("Error fetching attendance records:", error);
@@ -1184,7 +1192,7 @@ export const getAttendanceBySupervisorId = async (supervisorId: string | number)
 export const getGradeById = async (gradeId: number) => {
   return await prisma.grade.findUnique({
     where: { id: gradeId },
-    select: { name: true },
+    select: { level: true },
   });
 };
 

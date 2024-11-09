@@ -8,10 +8,28 @@ interface SchedulerModalProps {
   teacherId: string | number;
 }
 
+type ClassType = {
+  id: number;
+  name: string;
+  gradeId: number;
+};
+
+type GradeType = {
+  id: number;
+  level: number;
+};
+
+type Student = {
+  id: string;
+  name: string;
+  surname: string;
+  isPresent?: boolean;
+};
+
 const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teacherId }) => {
-  const [classes, setClasses] = useState([]);
-  const [grades, setGrades] = useState([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [classes, setClasses] = useState<ClassType[]>([]);
+  const [grades, setGrades] = useState<GradeType[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("");
@@ -60,7 +78,7 @@ const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teache
 
     const response = await getStudentsByGradeAndClass(gradeId, classId);
     if (response.success && response.data.length > 0) {
-      setStudents(response.data.map(student => ({ ...student, isPresent: markAllPresent })));
+      setStudents(response.data.map((student: Student) => ({ ...student, isPresent: markAllPresent })));
       setNoStudentsMessage("");
       updateCounts(response.data);
     } else {
@@ -71,7 +89,7 @@ const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teache
 
   const handleAttendanceChange = (studentId: string, isPresent: boolean) => {
     setStudents((prevStudents) => {
-      const updatedStudents = prevStudents.map((s) =>
+      const updatedStudents = prevStudents.map((s: Student) =>
         s.id === studentId ? { ...s, isPresent } : s
       );
       updateCounts(updatedStudents);
@@ -79,15 +97,15 @@ const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teache
     });
   };
 
-  const updateCounts = (updatedStudents) => {
-    const presentCount = updatedStudents.filter((student) => student.isPresent).length;
+  const updateCounts = (updatedStudents: Student[]) => {
+    const presentCount = updatedStudents.filter((student: Student) => student.isPresent).length;
     const absentCount = updatedStudents.length - presentCount;
     setPresentCount(presentCount);
     setAbsentCount(absentCount);
   };
 
   const handleSaveAttendance = async () => {
-    const unmarkedStudents = students.filter(student => student.isPresent === undefined);
+    const unmarkedStudents = students.filter((student: Student) => student.isPresent === undefined);
 
     if (unmarkedStudents.length > 0) {
       setConfirmationMessage("Mark attendance for all the students without fail.");
@@ -96,15 +114,15 @@ const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teache
       return;
     }
 
-    const presentIds = students.filter(student => student.isPresent).map(student => student.id);
-    const absentIds = students.filter(student => !student.isPresent).map(student => student.id);
+    const presentIds = students.filter((student: Student) => student.isPresent).map((student: Student) => student.id);
+    const absentIds = students.filter((student: Student) => !student.isPresent).map((student: Student) => student.id);
 
     const attendanceData = {
       date: selectedDate,
       period: parseInt(selectedPeriod, 10),
       gradeId: parseInt(selectedGrade, 10),
       classId: parseInt(selectedClass, 10),
-      supervisorId: teacherId,
+      supervisorId: String(teacherId), // Convert teacherId to string if it's not already
       presentIds,
       absentIds,
     };
@@ -129,7 +147,7 @@ const SchedulerModal: React.FC<SchedulerModalProps> = ({ isOpen, onClose, teache
   const handleMarkAllPresent = () => {
     setMarkAllPresent(!markAllPresent);
     setStudents((prevStudents) => {
-      const updatedStudents = prevStudents.map(student => ({ ...student, isPresent: !markAllPresent }));
+      const updatedStudents = prevStudents.map((student: Student) => ({ ...student, isPresent: !markAllPresent }));
       updateCounts(updatedStudents);
       return updatedStudents;
     });

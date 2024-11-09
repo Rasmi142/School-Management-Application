@@ -165,16 +165,16 @@ async function main() {
   }
 
   // ATTENDANCE
-  for (let i = 1; i <= 10; i++) {
-    await prisma.attendance.create({
-      data: {
-        date: new Date(), 
-        // present: true, 
-        studentId: `student${i}`, 
-        lessonId: (i % 30) + 1, 
-      },
-    });
-  }
+  // for (let i = 1; i <= 10; i++) {
+  //   await prisma.attendance.create({
+  //     data: {
+  //       date: new Date(), 
+  //       // present: true, 
+  //       studentId: `student${i}`, 
+  //       lessonId: (i % 30) + 1, 
+  //     },
+  //   });
+  // }
 
   // EVENT
   for (let i = 1; i <= 5; i++) {
