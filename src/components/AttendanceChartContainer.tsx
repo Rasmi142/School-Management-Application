@@ -19,7 +19,7 @@ const AttendanceChartContainer = async () => {
     },
     select: {
       date: true,
-      present: true,
+      // present: true,
     },
   });
 

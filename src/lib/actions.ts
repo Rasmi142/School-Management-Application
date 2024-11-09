@@ -20,6 +20,16 @@ import { Lesson } from "@prisma/client";
 
 type CurrentState = { success: boolean; error: boolean };
 
+interface AttendanceData {
+  date: string;
+  period: number;
+  gradeId: number;
+  classId: number;
+  presentIds: string[];
+  absentIds: string[];
+}
+
+
 export const createSubject = async (
   currentState: CurrentState,
   data: SubjectSchema
@@ -1053,4 +1063,134 @@ export const deleteAnnouncement = async (
     console.log(err);
     return { success: false, error: true };
   }
+};
+
+// action.ts
+export const getClasses = async () => {
+  try {
+    const classes = await prisma.class.findMany({
+      select: {
+        id: true,
+        name: true,  // Assuming your class table has a name field
+        gradeId: true,
+      },
+    });
+
+    // Format the data as needed for the dropdown
+    return { success: true, error: false, data: classes };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true, data: [] };
+  }
+};
+
+export const getStudentsByGradeAndClass = async (gradeId: number, classId: number) => {
+  try {
+    const students = await prisma.student.findMany({
+      where: {
+        gradeId,
+        classId,
+      },
+      select: {
+        id: true,
+        name: true,
+        surname: true,
+      },
+    });
+    const validStudents = students.filter(student => student.id); // Ensure students have an `id`
+    return { success: true, data: validStudents };
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    return { success: false, data: [] };
+  }
+};
+
+
+// action.ts
+export const getGrades = async () => {
+  try {
+    const grades = await prisma.grade.findMany({
+      select: {
+        id: true,
+        level: true,
+      },
+    });
+
+    // Format the data as needed for the dropdown
+    return { success: true, error: false, data: grades };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true, data: [] };
+  }
+};
+
+// Function to store attendance data
+export const addAttendance = async (attendanceData: {
+  date: Date | string;
+  period?: number;
+  gradeId: number;
+  classId: number;
+  supervisorId: string;
+  presentIds: string[];
+  absentIds: string[];
+  studentId?: string;
+  lessonId?: number;
+}) => {
+  const { date, period, gradeId, classId, supervisorId, presentIds, absentIds, studentId, lessonId } = attendanceData;
+
+  try {
+    const attendance = await prisma.attendance.create({
+      data: {
+        date: typeof date === "string" ? new Date(date) : date,
+        period,
+        gradeId,
+        classId,
+        supervisorId,
+        presentIds,
+        absentIds,
+        studentId: studentId ?? undefined,
+        lessonId: lessonId ?? undefined,
+      },
+    });
+    return { success: true, error: false, data: attendance };
+  } catch (error) {
+    console.error("Failed to save attendance:", error);
+    return { success: false, error: true, data: "Failed to save attendance" };
+  }
+};
+
+export const getAttendanceBySupervisorId = async (supervisorId: string | number) => {
+  try {
+    const attendanceRecords = await prisma.attendance.findMany({
+      where: {
+        supervisorId: supervisorId,
+      },
+      select: {
+        id: true,
+        studentId: true,
+        date: true,
+        status: true,
+      },
+    });
+    
+    const validRecords = attendanceRecords.filter(record => record.id); // Ensure attendance records have an `id`
+    return { success: true, data: validRecords };
+  } catch (error) {
+    console.error("Error fetching attendance records:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getGradeById = async (gradeId: number) => {
+  return await prisma.grade.findUnique({
+    where: { id: gradeId },
+    select: { name: true },
+  });
+};
+
+export const getClassById = async (classId: number) => {
+  return await prisma.class.findUnique({
+    where: { id: classId },
+    select: { name: true },
+  });
 };
