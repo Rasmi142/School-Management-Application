@@ -29,8 +29,8 @@ ENV DATABASE_URL=${DATABASE_URL}
 ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}
 ENV NEXT_PUBLIC_CLOUDINARY_API_KEY=${NEXT_PUBLIC_CLOUDINARY_API_KEY}
 
-# Generate Database
-RUN npx prisma migrate deploy
+# Generate Prisma Client and apply database migrations
+RUN npx prisma generate && npx prisma migrate deploy
 
 # Build the Next.js application
 RUN npm run build
