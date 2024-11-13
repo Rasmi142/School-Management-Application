@@ -51,6 +51,8 @@ model Teacher {
   lessons   Lesson[]
   classes   Class[]
   birthday  DateTime
+  Attendance    Attendance[]
+
 }
 
 model Parent {
@@ -71,6 +73,8 @@ model Grade {
 
   students Student[]
   classess Class[]
+  Attendance    Attendance[]
+
 }
 
 model Class {
@@ -86,6 +90,8 @@ model Class {
   grade         Grade          @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
+  Attendance    Attendance[]
+
 }
 
 model Subject {
@@ -148,14 +154,21 @@ model Result {
 }
 
 model Attendance {
-  id      Int      @id @default(autoincrement())
-  date    DateTime
-  present Boolean
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id])
-  lessonId  Int
-  lesson    Lesson  @relation(fields: [lessonId], references: [id])
+  id           Int      @id @default(autoincrement())
+  date         DateTime
+  studentId    String?
+  lessonId     Int?
+  period       Int
+  supervisorId String
+  gradeId      Int
+  classId      Int
+  presentIds   String[]
+  absentIds    String[]
+  Class        Class    @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Grade        Grade    @relation(fields: [gradeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  lesson       Lesson?  @relation(fields: [lessonId], references: [id], onDelete: Restrict)
+  student      Student? @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  Teacher      Teacher  @relation(fields: [supervisorId], references: [id], onDelete: SetNull)
 }
 
 model Event {
